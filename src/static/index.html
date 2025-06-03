@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise ENADE - Universidade de Fortaleza</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-item label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        select, button {
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .dimension-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .noc { background: #e3f2fd; color: #1976d2; }
+        .nfc { background: #f3e5f5; color: #7b1fa2; }
+        .nac { background: #e8f5e8; color: #388e3c; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .extremes-section {
+            margin-top: 30px;
+        }
+
+        .extremes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .extreme-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid;
+        }
+
+        .extreme-card.lowest {
+            border-left-color: #e74c3c;
+        }
+
+        .extreme-card.highest {
+            border-left-color: #27ae60;
+        }
+
+        .extreme-list {
+            list-style: none;
+        }
+
+        .extreme-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .extreme-list li:last-child {
+            border-bottom: none;
+        }
+
+        .score {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .extremes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Análise ENADE - Universidade de Fortaleza</h1>
+            <p>Ferramenta para identificação de gargalos e comparação de desempenho por curso</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-item">
+                    <label for="areaSelect">Área de Avaliação:</label>
+                    <select id="areaSelect">
+                        <option value="geral">Visão Geral</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label>&nbsp;</label>
+                    <button onclick="loadAnalysis()">
+                        <i class="fas fa-sync-alt"></i> Atualizar Análise
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3><i class="fas fa-tachometer-alt"></i> Resumo Executivo</h3>
+                <div class="stats-grid" id="summaryStats">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Carregando dados...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-balance-scale"></i> Comparação por Níveis</h3>
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-graduation-cap"></i> Performance UNIFOR por Dimensão</h3>
+                <div class="chart-container">
+                    <canvas id="dimensionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Cursos UNIFOR por Área</h3>
+                <div class="chart-container">
+                    <canvas id="coursesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card extremes-section" id="extremesSection" style="display: none;">
+            <h3><i class="fas fa-search"></i> Análise de Extremos - <span id="selectedArea"></span></h3>
+            <div class="extremes-grid" id="extremesContent">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-table"></i> Detalhamento por Dimensão</h3>
+            <table class="comparison-table" id="detailTable">
+                <thead>
+                    <tr>
+                        <th>Dimensão</th>
+                        <th>UNIFOR</th>
+                        <th>Ceará</th>
+                        <th>Nordeste</th>
+                        <th>Brasil</th>
+                        <th>Diferença vs Brasil</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTableBody">
+                    <tr>
+                        <td colspan="6" class="loading">
+                            <i class="fas fa-spinner"></i> Carregando dados...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
