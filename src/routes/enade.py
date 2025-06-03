@@ -159,3 +159,113 @@ def get_dashboard_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@enade_bp.route('/unifor-analysis')
+def get_unifor_analysis():
+    """Retorna análise específica das questões da UNIFOR"""
+    try:
+        analyzer = get_analyzer()
+        area = request.args.get('area')
+        
+        analysis = analyzer.analyze_unifor_questions(area)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@enade_bp.route('/improvement-priorities')
+def get_improvement_priorities():
+    """Retorna prioridades de melhoria para a UNIFOR"""
+    try:
+        analyzer = get_analyzer()
+        area = request.args.get('area')
+        
+        priorities = analyzer.identify_improvement_priorities(area)
+        return jsonify(priorities)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@enade_bp.route('/similar-institutions')
+def get_similar_institutions():
+    """Retorna instituições similares para comparação"""
+    try:
+        analyzer = get_analyzer()
+        area = request.args.get('area')
+        limit = int(request.args.get('limit', 10))
+        
+        institutions = analyzer.get_similar_institutions(area, limit)
+        return jsonify({'institutions': institutions})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@enade_bp.route('/institutional-comparison')
+def get_institutional_comparison():
+    """Compara UNIFOR com instituições específicas"""
+    try:
+        analyzer = get_analyzer()
+        area = request.args.get('area')
+        institutions_param = request.args.get('institutions', '')
+        
+        if institutions_param:
+            institutions = institutions_param.split(',')
+        else:
+            # Usar instituições similares por padrão
+            institutions = analyzer.get_similar_institutions(area, 5)
+        
+        comparison = analyzer.compare_with_specific_institutions(institutions, area)
+        return jsonify(comparison)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@enade_bp.route('/question-analysis')
+def get_question_analysis():
+    """Análise detalhada de uma questão específica"""
+    try:
+        analyzer = get_analyzer()
+        question = request.args.get('question')
+        area = request.args.get('area')
+        
+        if not question:
+            return jsonify({'error': 'Parâmetro question é obrigatório'}), 400
+        
+        analysis = analyzer.get_question_comparison(question, area)
+        top_institutions = analyzer.get_top_institutions_by_question(question, area, 10)
+        
+        return jsonify({
+            'question_stats': analysis,
+            'top_institutions': top_institutions
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@enade_bp.route('/comprehensive-analysis')
+def get_comprehensive_analysis():
+    """Análise abrangente incluindo todas as funcionalidades"""
+    try:
+        analyzer = get_analyzer()
+        area = request.args.get('area')
+        
+        # Análise das questões da UNIFOR
+        unifor_analysis = analyzer.analyze_unifor_questions(area)
+        
+        # Prioridades de melhoria
+        priorities = analyzer.identify_improvement_priorities(area)
+        
+        # Instituições similares
+        similar_institutions = analyzer.get_similar_institutions(area, 5)
+        
+        # Comparação institucional
+        institutional_comparison = analyzer.compare_with_specific_institutions(similar_institutions, area)
+        
+        return jsonify({
+            'unifor_analysis': unifor_analysis,
+            'improvement_priorities': priorities,
+            'similar_institutions': similar_institutions,
+            'institutional_comparison': institutional_comparison,
+            'metadata': {
+                'area': area,
+                'analysis_type': 'comprehensive'
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+

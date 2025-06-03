@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise ENADE - Universidade de Fortaleza</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -17,72 +16,65 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
+            padding: 20px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         .header {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
             padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
             text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .header h1 {
             color: #2c3e50;
-            font-size: 2.5rem;
+            font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 700;
         }
 
         .header p {
             color: #7f8c8d;
-            font-size: 1.1rem;
+            font-size: 1.2em;
         }
 
         .controls {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
             padding: 25px;
+            border-radius: 15px;
             margin-bottom: 30px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-group {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             display: flex;
             gap: 20px;
             align-items: center;
             flex-wrap: wrap;
         }
 
-        .control-item {
+        .control-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        .control-item label {
+        .control-group label {
             font-weight: 600;
             color: #2c3e50;
-            font-size: 0.9rem;
+            font-size: 14px;
         }
 
         select, button {
-            padding: 12px 16px;
-            border: 2px solid #e1e8ed;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
             transition: all 0.3s ease;
-            background: white;
         }
 
         select:focus, button:focus {
@@ -97,27 +89,26 @@
             border: none;
             cursor: pointer;
             font-weight: 600;
-            min-width: 120px;
+            min-width: 180px;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .dashboard {
+        .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
+            gap: 25px;
             margin-bottom: 30px;
         }
 
         .card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             transition: transform 0.3s ease;
         }
 
@@ -128,161 +119,150 @@
         .card h3 {
             color: #2c3e50;
             margin-bottom: 20px;
-            font-size: 1.4rem;
-            font-weight: 700;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 1.5em;
         }
 
         .chart-container {
             position: relative;
-            height: 300px;
-            margin-bottom: 20px;
+            height: 350px;
+            margin-top: 15px;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        .priority-list {
+            max-height: 400px;
+            overflow-y: auto;
         }
 
-        .stat-item {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            transition: transform 0.3s ease;
+        .priority-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
         }
 
-        .stat-item:hover {
-            transform: scale(1.05);
+        .priority-item.high {
+            border-left-color: #e74c3c;
         }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 5px;
+        .priority-item.medium {
+            border-left-color: #f39c12;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6c757d;
+        .priority-item.low {
+            border-left-color: #27ae60;
+        }
+
+        .priority-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .priority-question {
             font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .priority-score {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .priority-details {
+            font-size: 0.9em;
+            color: #7f8c8d;
         }
 
         .comparison-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .comparison-table th,
         .comparison-table td {
             padding: 12px;
             text-align: center;
-            border-bottom: 1px solid #e1e8ed;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .comparison-table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .score-positive {
+            color: #27ae60;
             font-weight: 600;
         }
 
-        .comparison-table tr:hover {
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .dimension-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+        .score-negative {
+            color: #e74c3c;
             font-weight: 600;
-            margin: 2px;
         }
-
-        .noc { background: #e3f2fd; color: #1976d2; }
-        .nfc { background: #f3e5f5; color: #7b1fa2; }
-        .nac { background: #e8f5e8; color: #388e3c; }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: #6c757d;
+            color: #7f8c8d;
         }
 
-        .loading i {
-            font-size: 2rem;
-            animation: spin 1s linear infinite;
+        .full-width {
+            grid-column: 1 / -1;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .extremes-section {
-            margin-top: 30px;
-        }
-
-        .extremes-grid {
+        .institution-comparison {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .extreme-card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 20px;
-            border-left: 5px solid;
+        .institution-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
         }
 
-        .extreme-card.lowest {
-            border-left-color: #e74c3c;
-        }
-
-        .extreme-card.highest {
-            border-left-color: #27ae60;
-        }
-
-        .extreme-list {
-            list-style: none;
-        }
-
-        .extreme-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .extreme-list li:last-child {
-            border-bottom: none;
-        }
-
-        .score {
+        .institution-name {
             font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .institution-score {
+            font-size: 1.5em;
+            font-weight: 700;
             color: #667eea;
         }
 
         @media (max-width: 768px) {
-            .dashboard {
+            .grid {
                 grid-template-columns: 1fr;
             }
             
-            .control-group {
+            .controls {
                 flex-direction: column;
                 align-items: stretch;
             }
             
-            .extremes-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .header h1 {
-                font-size: 2rem;
+                font-size: 2em;
             }
         }
     </style>
@@ -290,88 +270,84 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-chart-line"></i> Análise ENADE - Universidade de Fortaleza</h1>
-            <p>Ferramenta para identificação de gargalos e comparação de desempenho por curso</p>
+            <h1>📊 Análise ENADE - Universidade de Fortaleza</h1>
+            <p>Ferramenta para identificação de gargalos e prioridades de melhoria</p>
         </div>
 
         <div class="controls">
             <div class="control-group">
-                <div class="control-item">
-                    <label for="areaSelect">Área de Avaliação:</label>
-                    <select id="areaSelect">
-                        <option value="geral">Visão Geral</option>
-                    </select>
-                </div>
-                <div class="control-item">
-                    <label>&nbsp;</label>
-                    <button onclick="loadAnalysis()">
-                        <i class="fas fa-sync-alt"></i> Atualizar Análise
-                    </button>
-                </div>
+                <label for="areaSelect">🎯 Área de Avaliação:</label>
+                <select id="areaSelect">
+                    <option value="">Visão Geral</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label></label>
+                <button onclick="updateAnalysis()">🔄 Atualizar Análise</button>
             </div>
         </div>
 
-        <div class="dashboard">
-            <div class="card">
-                <h3><i class="fas fa-tachometer-alt"></i> Resumo Executivo</h3>
-                <div class="stats-grid" id="summaryStats">
-                    <div class="loading">
-                        <i class="fas fa-spinner"></i>
-                        <p>Carregando dados...</p>
-                    </div>
+        <div class="grid">
+            <!-- Prioridades de Melhoria -->
+            <div class="card full-width">
+                <h3><span class="card-icon">🚨</span>Prioridades de Melhoria - UNIFOR</h3>
+                <div id="prioritiesContainer" class="priority-list">
+                    <div class="loading">Carregando análise de prioridades...</div>
                 </div>
             </div>
 
+            <!-- Análise das Questões UNIFOR -->
             <div class="card">
-                <h3><i class="fas fa-balance-scale"></i> Comparação por Níveis</h3>
+                <h3><span class="card-icon">📈</span>Performance UNIFOR por Questão</h3>
                 <div class="chart-container">
-                    <canvas id="comparisonChart"></canvas>
+                    <canvas id="uniforQuestionsChart"></canvas>
                 </div>
             </div>
 
+            <!-- Comparação Institucional -->
             <div class="card">
-                <h3><i class="fas fa-graduation-cap"></i> Performance UNIFOR por Dimensão</h3>
+                <h3><span class="card-icon">🏆</span>Comparação com Concorrentes</h3>
+                <div id="institutionalComparison">
+                    <div class="loading">Carregando comparação...</div>
+                </div>
+            </div>
+
+            <!-- Análise por Dimensão -->
+            <div class="card">
+                <h3><span class="card-icon">📊</span>Performance por Dimensão</h3>
                 <div class="chart-container">
                     <canvas id="dimensionChart"></canvas>
                 </div>
             </div>
 
+            <!-- Top Instituições -->
             <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Cursos UNIFOR por Área</h3>
-                <div class="chart-container">
-                    <canvas id="coursesChart"></canvas>
+                <h3><span class="card-icon">🥇</span>Benchmarks de Excelência</h3>
+                <div id="topInstitutions">
+                    <div class="loading">Carregando benchmarks...</div>
                 </div>
             </div>
-        </div>
 
-        <div class="card extremes-section" id="extremesSection" style="display: none;">
-            <h3><i class="fas fa-search"></i> Análise de Extremos - <span id="selectedArea"></span></h3>
-            <div class="extremes-grid" id="extremesContent">
-                <!-- Conteúdo será carregado dinamicamente -->
+            <!-- Detalhamento por Questão -->
+            <div class="card full-width">
+                <h3><span class="card-icon">🔍</span>Análise Detalhada por Questão</h3>
+                <table class="comparison-table" id="questionDetailsTable">
+                    <thead>
+                        <tr>
+                            <th>Questão</th>
+                            <th>Dimensão</th>
+                            <th>UNIFOR</th>
+                            <th>Média Nacional</th>
+                            <th>Gap</th>
+                            <th>Percentil</th>
+                            <th>Melhor IES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="7" class="loading">Carregando detalhes...</td></tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-
-        <div class="card">
-            <h3><i class="fas fa-table"></i> Detalhamento por Dimensão</h3>
-            <table class="comparison-table" id="detailTable">
-                <thead>
-                    <tr>
-                        <th>Dimensão</th>
-                        <th>UNIFOR</th>
-                        <th>Ceará</th>
-                        <th>Nordeste</th>
-                        <th>Brasil</th>
-                        <th>Diferença vs Brasil</th>
-                    </tr>
-                </thead>
-                <tbody id="detailTableBody">
-                    <tr>
-                        <td colspan="6" class="loading">
-                            <i class="fas fa-spinner"></i> Carregando dados...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
